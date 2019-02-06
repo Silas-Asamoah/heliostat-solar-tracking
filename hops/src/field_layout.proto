@@ -1,0 +1,103 @@
+// Copyright 2010 Google Inc. All Rights Reserved.
+// Author: tpw@google.com (Tamsyn Waterhouse)
+
+syntax = "proto2";
+
+package energy_rec;
+
+message FieldLayout {
+  message Vector {
+    enum CoordinateSystem {
+      CARTESIAN = 0;
+      CYLINDRICAL = 1;
+      SPHERICAL = 2;
+      ASTRONOMICAL = 3;
+    }
+    required CoordinateSystem coordinate_system = 1;
+    repeated double coordinate = 2;
+  }
+
+  message EulerAnglesIntrinsicZXZ {
+    // This is a composition of intrinsic rotations; that is, the coordinate
+    // frame rotates at each step.
+    required double alpha = 1 [default = 0.0];
+    required double beta = 2 [default = 0.0];
+    required double gamma = 3 [default = 0.0];
+  }
+
+  message ManualSunConfig {
+    required Vector sun_vector = 1;
+    required double dni = 2;
+  }
+
+  message Sun {
+    required bool automatic = 1;
+    optional Vector field_location = 2;  // used if automatic is true
+    repeated ManualSunConfig sun_config = 3;  // used if automatic is false
+  }
+
+  message HeliostatType {
+    enum Actuation {
+      DIRECT = 0;      // makes the shortest rotation from flat
+      AZI_ELE = 1;     // rotates about the vertical axis for azimuth, then
+                       // tilts about the mirror-intrinsic lateral axis for
+                       // elevation (like the Green Mountain heliostats)
+      PITCH_ROLL = 2;  // rolls about the heliostat's longitudinal axis, then
+                       // pitches about its lateral axis (like our catostats
+                       // and our U-joint heliostats)
+    }
+    message Vertex {
+      required double x = 1;
+      required double y = 2;
+    }
+    optional double reflectivity = 1 [default = 1.0];
+    optional double focal_length = 2 [default = 0.0];
+    optional Actuation actuation = 3 [default = DIRECT];
+    // The following fields set the mirror shape.  If vertex is populated, the
+    // mirror shape will be the polygon determined by its entries.  Otherwise,
+    // the mirror shape will be a (width x height) rectangle.
+    optional double width = 4 [default = 3.0];
+    optional double height = 5 [default = 2.0];
+    repeated Vertex vertex = 6;  // Overrides width and height with this shape
+  }
+
+  message HeliostatBlock {
+    required HeliostatType heliostat_type = 1;
+    required Vector start = 2;
+    required Vector x_step = 3;
+    required int32 num_x_steps = 4;
+    required Vector y_step = 5;
+    required int32 num_y_steps = 6;
+    required Vector aim = 7;
+    // orientation expressed as rotation from level and south-facing:
+    optional EulerAnglesIntrinsicZXZ frame_orientation = 8;
+  }
+
+  message Heliostat {
+    required HeliostatType heliostat_type = 1;
+    optional string name = 2;
+    required Vector location = 3;
+    required Vector aim = 4;
+    // orientation expressed as rotation from level and south-facing:
+    optional EulerAnglesIntrinsicZXZ frame_orientation = 5;
+  }
+
+  message Aperture {
+    required Vector location = 1;
+    required Vector normal = 2;
+    required double radius = 3;
+  }
+
+  message Receiver {
+    required string type = 1;
+    required Vector location = 2;
+    required Vector direction = 3;
+    required int32 resolution = 4;
+  }
+
+  required Sun sun = 1;
+  repeated HeliostatBlock heliostat_block = 2;
+  repeated Heliostat heliostat = 3;
+  optional Aperture aperture = 4;
+  required Receiver receiver = 5;
+}

@@ -1,0 +1,18 @@
+URL: http://rredc.nrel.gov/solar/codesandalgorithms/solpos/
+Version: 2.0
+License: US Government agency authored and released without copyright
+License File: LICENSE
+
+Description:
+This C function calculates the apparent solar position and intensity
+(theoretical maximum solar energy) based on the date, time, and location on
+Earth.
+
+Local Modifications:
+- renamed solpos00.h to solpos.h
+- renamed solpos.c to solpos.cc
+- changed /* to */ on line 295 of solpos.h
+- changed "solpos00.h" to "third_party/nrel/solpos/solpos.h" on line 91 of
+  solpos.cc
+- changed parens to fix && vs. || precedence on lines 333, 344, and 347 of
+  solpos.cc

@@ -1,0 +1,68 @@
+# Use real sun positions over Barstow:
+sun: {
+  automatic: true
+  field_location: {
+    coordinate_system: ASTRONOMICAL
+    coordinate:  6e6  # Earth's radius; not used by optical_simulation
+    coordinate: -117.0219
+    coordinate:   34.8986
+  }
+}
+
+# Put a square block of 626 rectangular 2m^2 heliostats centered
+# at the origin and aimed at a point overhead:
+heliostat_block: {
+  heliostat_type: {
+    reflectivity: 0.95
+    focal_length: 50.0
+    actuation: PITCH_ROLL
+    width: 2.0
+    height: 1.0
+  }
+  start: {
+    coordinate_system: CARTESIAN
+    coordinate: -25.0
+    coordinate: -25.0
+    coordinate:   0.0
+  }
+  x_step: {
+    coordinate_system: CARTESIAN
+    coordinate:   2.0
+    coordinate:   0.0
+    coordinate:   0.0
+  }
+  num_x_steps: 25
+  y_step: {
+    coordinate_system: CARTESIAN
+    coordinate:   0.0
+    coordinate:   2.0
+    coordinate:   0.0
+  }
+  num_y_steps: 25
+  aim: {
+    coordinate_system: CARTESIAN
+    coordinate:   0.0
+    coordinate:   0.0
+    coordinate:  48.0
+  }
+}
+
+# Put a flat receiver 50 metres above the origin:
+receiver: {
+  type: "flat"
+  location: {
+    coordinate_system: CARTESIAN
+    coordinate:  0.0
+    coordinate:  0.0
+    coordinate: 50.0
+  }
+  # pointing downwards:
+  direction: {
+    coordinate_system: ASTRONOMICAL
+    coordinate:   1.0
+    coordinate:   0.0
+    coordinate: -90.0
+  }
+  # 10 by 10 receiver surface discretization:
+  resolution: 10
+}

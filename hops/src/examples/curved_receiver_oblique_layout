@@ -1,0 +1,98 @@
+# Use real sun positions over Barstow:
+sun: {
+  automatic: true
+  field_location: {
+    coordinate_system: ASTRONOMICAL
+    coordinate:  6e6  # Earth's radius; not used by optical_simulation
+    coordinate: -117.0219
+    coordinate:   34.8986
+  }
+}
+
+# Put a square block of 626 trapezoidal 1m^2 heliostats centered 75 metres
+# north of the origin and aimed at a point above the origin:
+heliostat_block: {
+  heliostat_type: {
+    reflectivity: 0.9
+    focal_length: 75.0
+    actuation: AZI_ELE
+    vertex: {
+      x: 0.25
+      y: 0.5
+    }
+    vertex: {
+      x: -0.25
+      y: 0.5
+    }
+    vertex: {
+      x: -0.75
+      y: -0.5
+    }
+    vertex: {
+      x: 0.75
+      y: -0.5
+    }
+  }
+  start: {
+    coordinate_system: CARTESIAN
+    coordinate: -25.0
+    coordinate:  50.0
+    coordinate:   0.0
+  }
+  x_step: {
+    coordinate_system: CARTESIAN
+    coordinate:   2.0
+    coordinate:   0.0
+    coordinate:   0.0
+  }
+  num_x_steps: 25
+  y_step: {
+    coordinate_system: CARTESIAN
+    coordinate:   0.0
+    coordinate:   2.0
+    coordinate:   0.0
+  }
+  num_y_steps: 25
+  aim: {
+    coordinate_system: CARTESIAN
+    coordinate:   0.0
+    coordinate:   2.0
+    coordinate:  48.0
+  }
+}
+
+# Put a curved receiver above the origin, aimed at the field:
+receiver: {
+  type: "alec"
+  location: {
+    coordinate_system: CARTESIAN
+    coordinate:  0.0
+    coordinate:  0.0
+    coordinate: 50.0
+  }
+  direction: {
+    coordinate_system: ASTRONOMICAL
+    coordinate:   1.0
+    coordinate:   0.0
+    coordinate: -28.0
+  }
+  # 10 by 10 receiver surface discretization:
+  resolution: 10
+}
+
+# Put an aperture at the mouth of the receiver:
+aperture: {
+  location: {
+    coordinate_system: CARTESIAN
+    coordinate:  0.0
+    coordinate:  0.0
+    coordinate: 50.0
+  }
+  normal: {
+    coordinate_system: ASTRONOMICAL
+    coordinate:   1.0
+    coordinate:   0.0
+    coordinate: -28.0
+  }
+  radius: 1.68
+}

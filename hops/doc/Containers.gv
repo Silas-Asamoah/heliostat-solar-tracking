@@ -1,0 +1,73 @@
+digraph Containers {
+  size="8,8";
+  {
+    rank = same;
+    main;
+  }
+
+  {
+    rank = same;
+    Simulation [shape=box];
+  }
+
+  {
+    rank = same;
+    OpticContainerConnection1 [shape=box,label="OpticContainerConnection"];
+    OpticContainerConnection2 [shape=box,label="OpticContainerConnection"];
+  }
+
+  {
+    rank = same;
+    Sky [shape=record,label="{OpticContainer|Sky}"];
+    Field [shape=record,label="{OpticContainer|Field}"];
+    Receiver [shape=record,label="{OpticContainer|Receiver}"];
+  }
+
+  {
+    rank = same;
+    Sun [shape=record,label="{Optic|Sun}"];
+    Heliostat1 [shape=record,label="{Optic|Heliostat}"];
+    HeliostatN [shape=record,label="{Optic|Heliostat}"];
+    Aperture [shape=record,label="{Optic|Aperture}"];
+    ReceiverElement1 [shape=record,label="{Optic|ReceiverElement}"];
+    ReceiverElementN [shape=record,label="{Optic|ReceiverElement}"];
+  }
+
+  {
+    rank = same;
+    SunCalculator [shape=record,label="{SunCalculator|{SOLPOS|SunPositionList}}"];
+    HeliostatFacet11 [shape=box,label="HeliostatFacet"];
+    HeliostatFacet1N [shape=box,label="HeliostatFacet"];
+    HeliostatFacetN1 [shape=box,label="HeliostatFacet"];
+    HeliostatFacetNN [shape=box,label="HeliostatFacet"];
+  }
+
+  main -> Simulation;
+  Simulation -> Sky;
+  Simulation -> Field;
+  Simulation -> Receiver;
+  Simulation -> OpticContainerConnection1;
+  Simulation -> OpticContainerConnection2;
+
+  OpticContainerConnection1 -> Sky [style=dashed];
+  OpticContainerConnection1 -> Field [style=dashed];
+  OpticContainerConnection2 -> Field [style=dashed];
+  OpticContainerConnection2 -> Receiver [style=dashed];
+
+  Sky -> Sun;
+  Field -> Heliostat1;
+  Field -> HeliostatN;
+  Heliostat1 -> HeliostatN [arrowhead=none,style=dotted];
+  Receiver -> Aperture;
+  Receiver -> ReceiverElement1;
+  Receiver -> ReceiverElementN;
+  ReceiverElement1 -> ReceiverElementN [arrowhead=none,style=dotted];
+
+  Sun -> SunCalculator;
+  Heliostat1 -> HeliostatFacet11;
+  Heliostat1 -> HeliostatFacet1N;
+  HeliostatFacet11 -> HeliostatFacet1N [arrowhead=none,style=dotted];
+  HeliostatN -> HeliostatFacetN1;
+  HeliostatN -> HeliostatFacetNN;
+  HeliostatFacetN1 -> HeliostatFacetNN [arrowhead=none,style=dotted];
+}

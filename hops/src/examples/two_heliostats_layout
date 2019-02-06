@@ -1,0 +1,119 @@
+# Use manual sun positions:
+sun {
+  automatic: false
+  sun_config {
+    sun_vector {
+      coordinate_system: CARTESIAN
+      coordinate: 0.890822
+      coordinate: -0.454147
+      coordinate: -0.0136678
+    }
+    dni: 999.0
+  }
+  sun_config {
+    sun_vector {
+      coordinate_system: CARTESIAN
+      coordinate: 0.885241
+      coordinate: -0.465132
+      coordinate: -0.000272859
+    }
+    dni: 500.0
+  }
+}
+
+# Put two heliostats near the origin:
+heliostat: {
+  heliostat_type: {
+    reflectivity: 0.9
+    focal_length: 50.0
+    actuation: AZI_ELE
+    # A rectangle with a 3:1 aspect ratio:
+    width: 3.0
+    height: 1.0
+  }
+  location: {
+    coordinate_system: CARTESIAN
+    coordinate:  10.0
+    coordinate:   0.0
+    coordinate:   0.0
+  }
+  aim: {
+    coordinate_system: CARTESIAN
+    coordinate:   0.0
+    coordinate:   1.0
+    coordinate:  50.0
+  }
+}
+heliostat: {
+  heliostat_type: {
+    reflectivity: 0.95
+    focal_length: 50.0
+    actuation: PITCH_ROLL
+    # An irregular quadrilateral:
+    vertex: {
+      x:  1.0
+      y:  1.0
+    }
+    vertex: {
+      x: -1.0
+      y:  0.8
+    }
+    vertex: {
+      x: -1.5
+      y: -1.0
+    }
+    vertex: {
+      x:  0.5
+      y: -0.5
+    }
+  }
+  location: {
+    coordinate_system: CARTESIAN
+    coordinate:   0.0
+    coordinate:  10.0
+    coordinate:   0.0
+  }
+  aim: {
+    coordinate_system: CARTESIAN
+    coordinate:   1.0
+    coordinate:   0.0
+    coordinate:  50.0
+  }
+}
+
+# Put a flat receiver 50 metres above the origin:
+receiver: {
+  type: "flat"
+  location: {
+    coordinate_system: CARTESIAN
+    coordinate:  0.0
+    coordinate:  0.0
+    coordinate: 50.0
+  }
+  # pointing downwards:
+  direction: {
+    coordinate_system: CARTESIAN
+    coordinate:  0.0
+    coordinate:  0.0
+    coordinate: -1.0
+  }
+  # 10 by 10 receiver surface discretization:
+  resolution: 10
+}
+
+# Put an aperture just below the receiver:
+aperture: {
+  location: {
+    coordinate_system: CARTESIAN
+    coordinate:  0.0
+    coordinate:  0.0
+    coordinate: 49.9
+  }
+  normal: {
+    coordinate_system: CARTESIAN
+    coordinate:  0.0
+    coordinate:  0.0
+    coordinate: -1.0
+  }
+  radius: 1.0
+}

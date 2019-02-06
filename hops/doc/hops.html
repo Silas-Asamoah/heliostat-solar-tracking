@@ -1,0 +1,972 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<title>HOpS: the Heliostat Optical Simulation</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="http://www.google.com/favicon.ico" type="image/x-icon"
+      rel="shortcut icon">
+<link href="designstyle.css" type="text/css" rel="stylesheet">
+<style type="text/css"> <!--
+  ol.bluelist li {
+    color: #3366ff; font-family: sans-serif;
+  } ol.bluelist li p {
+    color: #000; font-family: "Times Roman", times, serif;
+  } ul.blacklist li {
+    color: #000; font-family: "Times Roman", times, serif;
+  }
+//--> </style>
+</head>
+
+<body>
+
+<h1>HOpS: the Heliostat Optical Simulation</h1>
+<small>(last modified <script type=text/javascript>
+  var lm = new Date(document.lastModified); document.write(lm.toDateString());
+</script>)</small>
+
+
+<h3>Contents</h3>
+<ol>
+  <li><a href="#intro">Introduction</a><ul>
+    <li><a href="#motivation">Motivation</a></li>
+    <li><a href="#alternatives">Alternatives</a></li>
+    <li><a href="#use_at_google">Use at Google</a></li>
+    <li><a href="#wishlist">Wish list</a></li>
+  </ul></li>
+  <li><a href="#build">Building HOpS</a></li>
+  <li><a href="#usage">Usage</a><ul>
+    <li><a href="#configuration">Configuration</a></li>
+    <li><a href="#options">Options</a></li>
+    <li><a href="#output">Output</a></li>
+  </ul></li>
+  <li><a href="#visualization">Visualization of results</a></li>
+  <li><a href="#theory">Theory of operation</a><ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#masking">Masking</a></li>
+    <li><a href="#reflection">Reflection</a></li>
+    <li><a href="#objects">Classes and objects</a></li>
+    <li><a href="#simulation">Simulation</a></li>
+  </ul></li>
+  <li><a href="#conclusion">Concluding remarks</a></li>
+  <li><a href="#offaxis">Appendix: Off-axis astigmatism</a><ul>
+    <li><a href="#twodimensions">In two dimensions</a></li>
+    <li><a href="#threedimensions">In three dimensions</a></li>
+    <li><a href="#defocused">Defocused images</a></li>
+  </ul></li>
+</ol>
+
+
+
+<h2><a name=intro>Introduction</a></h2>
+
+<p><b>HOpS</b> is a tool for simulating the optics of a field of heliostats.
+HOpS was developed as part of the RE&lt;C Initiative at Google, focused on
+developing concentrated solar power.</p>
+
+<div>
+<img class="centered"
+     src="images/640px-PS20andPS10.png"
+     alt="640px-PS20andPS10.png"
+     title="Solar thermal plants PS10 and PS20, located in Spain">
+<div class="caption">Solar thermal plants PS10 and PS20, in Spain (image
+courtesy of Koza1983, Wikimedia Commons, 2007)</div>
+</div>
+
+<p>A <b>heliostat</b> is an actuated reflector (either flat or concave)
+designed to reflect sunlight onto a target surface, which may itself be flat
+or curved.  In the context of concentrating solar energy production, the target
+may be</p>
+<ul>
+  <li>a heat exchanger that heats fluid which then drives a turbine
+      to produce electricity, or which is itself used for process heat, or</li>
+  <li>a concentrating photovoltaic receiver.</li>
+</ul>
+
+<p>HOpS computes the visibility relationships between optical elements
+including the sun, heliostats, and discretized segments of the target surface.
+It simulates passing "packets" of light between each of these elements in order
+to compute irradiance data for the heliostats and the target.</p>
+
+
+<h3><a name=motivation>Motivation</a></h3>
+<p>HOpS was written as part of a larger effort in renewable energy research
+and development that focused on concentrating solar thermal production of
+electricity.</p>
+
+<p>Our goals included optical simulation of a heliostat field over the course
+of an entire year with ten-minute granularity.  Existing heliostat simulation
+tools were difficult to adapt to our needs.  Optics simulation tools generally
+fall into two categories: raytracers and analytic approximations.  Raytracers
+are very accurate, but because they need to compute flux using a statistically
+significant sample of rays, they require a lot of computation to arrive at a
+result.  Analytic approximations, such as DELSOL, are very fast but allow only
+limited configurability and accuracy.</p>
+
+<p>HOpS falls somewhere between the two categories, but closer to the analytic
+end of the spectrum:  It passes data representing packets of light from one
+optical element to another, allowing it to compute shadowing and blocking
+masks precisely as vector-based objects, without the need for casting millions
+of light rays as a raytracer would.</p>
+
+<p>HOpS is intended for use by researchers or designers of heliostat fields.
+It allows</p>
+<ul>
+  <li>manual or automatic sun positioning,</li>
+  <li>individual configuration, placement, orientation, and aiming of
+      arbitrarily many heliostats or lattice-aligned blocks of heliostats,</li>
+  <li>arbitrary polygonal reflector shapes (although the convolution used to
+      produce accurate reflected images of the sun is supported only for
+      quadrilateral reflectors),</li>
+  <li>different heliostat actuation kinematics,</li>
+  <li>heliostat aiming error, and more.</li>
+</ul>
+
+
+<h3><a name=alternatives>Alternatives</a></h3>
+
+<p>There are so many optical simulation tools, covering various domains, that
+it be fruitless to attempt a comprehensive list here.  Below is a small
+selection of tools which are relevant to concentrating solar applications.
+</p>
+
+<p>Raytracers:</p>
+<ul>
+  <li><b>LightTools</b> is a commercial raytracer oriented around the design of
+      illumination systems and optical components.  We used it while developing
+      HOpS, and then as a benchmark for HOpS' speed and accuracy.  Its
+      general-purpose nature makes it nearly infinitely configurable, but
+      likewise it takes a great deal of work to set it up and run it, and for
+      our purposes we found it (and other raytracers) to be unwieldy.
+      Additionally, like any raytracer, it's slower than the analytic
+      alternatives.</li>
+  <li><b>SolTrace</b> is a closed-source raytracer created by NREL.</li>
+  <li><b>ASAP</b> is a commercial raytracer by Breault Research.</li>
+  <li><b>Tonatiuh</b> is an interactive open-source raytracer under
+      development as of 2011.</li>
+</ul>
+
+<p>Analytic approximations:</p>
+<ul>
+  <li><b>DELSOL</b> is a highly-configurable analytic simulation of heliostat
+      fields.  Nevertheless, its approximate nature introduces some limitations
+      which made it unsuitable for our purposes.  For example, it doesn't
+      completely model the interaction between shadowing and blocking,
+      providing only upper and lower bounds on flux in cases where heliostats
+      may experience both types of masking.</li>
+  <li><b>HFLCAL</b> is functionally similar to DELSOL, but with a GUI.</li>
+</ul>
+
+
+<h3><a name=use_at_google>Use at Google</a></h3>
+
+<p>The RE&lt;C project used HOpS to lay out potential heliostat fields for the
+technology we designed.  Because our heliostats employ pitch-roll actuation
+kinematics rather than conventional azimuth-elevation, they exhibit different
+shadowing and blocking characteristics than conventional heliostats do.  We
+used HOpS to model this effect by comparing azimuth-elevation heliostats to
+pitch-roll heliostats for several different field configurations.</p>
+
+<p>With a little scripting, we also used HOpS to gauge the benefit of
+allowing heliostats in a tesselated field with regularly-placed receivers to
+switch their aim from one receiver to another to maximize total flux through
+the receivers' apertures, rather than always aiming at the nearest receiver.
+This strategy can provide increased power by balancing cosine loss
+(inefficiency due to canted reflectors) against spillage (reflected flux lost
+because it doesn't pass through a receiver's aperture and thus doesn't strike
+the receiver).  We accomplished this by running HOpS seven times on a hexagonal
+field assumed to be the basic unit of tesselation.  For each run we used a
+different receiver position: the center of the hexagon and the centers of the
+six adjacent hexagons.  We used HOpS' <code>--heliostat_flux_on_target</code>
+flag (see below) to measure the flux from each heliostat that reaches the
+receiver (through its aperture) and the <code>--disable_field_masking</code>
+flag in order to be agnostic regarding the exact placement of heliostats and
+their shadowing and blocking.  Then, for each heliostat at each time step, we
+took the highest flux-on-target value for that heliostat amongst all seven
+receivers, assigning that heliostat to that receiver for that time step.</p>
+
+<p>For a field located at Barstow's latitude, with parallel edges separated by
+120 meters and with one pair of edges aligned east-west, receiver apertures of
+diameter 1.5 meters, level with the horizon and 42 meters above the centers of
+the mirrors, allowing retargeting yields 13&#37; more flux on target on the
+winter solstice, 7&#37; more on an equinox, and 5&#37; more on the summer
+solstice than having each heliostat tied to its single closest receiver.</p>
+
+
+<h3><a name=wishlist>Wish list</a></h3>
+
+<p>Features that would be very nice to add to HOpS include:</p>
+<ul>
+  <li>Heliostat image calculation faster and more accurate than the discrete
+      convolution method currently used.  DELSOL, for example, uses an analytic
+      approximation in terms of Hermite polynomials.</li>
+  <li>More-configurable receiver geometry.  This could be accomplished fairly
+      easily by modifying <code>src/receiver_surfaces.cc</code>.</li>
+  <li>Parallelization.  At Google we distributed simulations across many
+      machines by dividing the set of time steps to be simulated into blocks
+      and assigning each block to an independent process, then collating the
+      results.  A multithreaded approach would speed up HOpS when running as a
+      single process on a multicore machine.</li>
+  <li>Easier integration with other tools.  In our usage at Google, we wrote
+      Python scripts to convert other field layout file formats to our protobuf
+      format and to adapt our output files for use in receiver thermal
+      simulations.  A standard suite of such conversion tools would be
+      useful.</li>
+</ul>
+
+
+
+<h2><a name=build>Building HOpS</a></h2>
+
+<p>HOpS is known to build on Ubuntu and Darwin.  It depends on the
+following packages, which must be installed first:</p>
+<ul>
+  <li><a href="http://code.google.com/p/google-gflags/">google-gflags</a></li>
+  <li><a href="http://code.google.com/p/google-glog/">google-glog</a></li>
+  <li><a href="http://code.google.com/p/protobuf/">protobuf</a></li>
+</ul>
+
+<p>It's best to install <code>google-gflags</code> before
+<code>google-glog</code>, so that the <code>google-glog</code> library will be
+built with support for command-line flags.  (Otherwise, you'll have to set the
+environment variable <code>GLOG_logtostderr=1</code> in place of using the
+the command-line flag <code>--logtostderr</code> discussed below.)</p>
+
+<p>Once these are installed (and the protobuf compiler
+<code>protoc</code> is in your <code>PATH</code>),
+checkout the HOpS source code using the instructions
+<a href="http://code.google.com/p/hops/source/checkout">here</a>.</p>
+
+<p>Next, change to the resulting directory, then run</p>
+<pre>
+autoreconf --force --install --verbose
+./configure
+</pre>
+<p>to construct a Makefile for your system.  Then run</p>
+<pre>
+make hops
+</pre>
+<p>to build the <code>hops</code> executable, or</p>
+<pre>
+make check
+</pre>
+<p>to build the executable and build and run the unittests.</p>
+
+
+
+<h2><a name=usage>Usage</a></h2>
+
+<pre>
+./hops [--logtostderr] \
+  --layout_file=... \
+  --start_time=... --end_time=... --time_step=... \
+  [--disable_field_masking] \
+  [--heliostat_aiming_error=...] \
+  [--heliostat_facets_per_side=...] \
+  [--heliostat_flux_in=...] \
+  {other output flags}
+</pre>
+
+<p>For example, to simulate sixty minutes in the life of the field in
+<code>src/examples/curved_receiver_oblique_layout</code>, with receiver
+irradiance output to <code>my_receiver_irradiance</code> and field efficiency
+output to <code>my_heliostat_efficiency</code>, you might run something like
+this:</p>
+<pre>
+./hops --logtostderr \
+  --layout_file=src/examples/curved_receiver_oblique_layout \
+  --start_time=1321395400 --end_time=1321399000 --time_step=60 \
+  --receiver_irradiance=my_receiver_irradiance \
+  --heliostat_efficiency=my_heliostat_efficiency
+</pre>
+
+
+<h3><a name=configuration>Configuration</a></h3>
+
+<p><code>hops</code> reads a field configuration from a text protocol buffer
+in the format defined in <code>src/field_layout.proto</code>.  The flag to
+specify the file to load is <code>--layout_file</code>.</p>
+
+<p>The basic elements of a field configuration file are as follows:</p>
+<ul>
+  <li><code>sun</code> describes the location of the sun in the sky.  It can be
+      either automatic, in which case you must use <code>field_location</code>
+      to specify the location of the field on Earth, or manual, in which case
+      you must specify a list of <code>sun_config</code> messages, each of
+      which gives the sun's position in the sky (as a vector in field
+      coordinates, of arbitrary magnitude) as a <code>sun_vector</code> message
+      and a corresponding direct normal insolation in watts per square
+      meter as a <code>dni</code> value.  In the automatic case, the sun's
+      position is computed using NREL's SOLPOS library, and DNI is
+      calculated using extraterrestrial DNI from SOLPOS multiplied by a
+      clear-sky atmospheric attenuation factor given by Rozenberg's equation;
+      see <code>src/sun_calculators.cc</code> for more details.</li>
+  <li><code>heliostat</code> and <code>heliostat_block</code> are messages that
+      let you create individual heliostats or lattice-aligned blocks of
+      heliostats, respectively.  In a <code>heliostat</code> message, you can
+      specify <code>reflectivity</code>, <code>focal_length</code>,
+      <code>actuation</code> kinematics (as <code>DIRECT</code>,
+      <code>AZI_ELE</code>, or <code>PITCH_ROLL</code>), and the shape of the
+      reflector (either as a rectangle with <code>width</code> and
+      <code>height</code> or as a sequence of <code>vertex</code> coordinate
+      pairs.  A <code>heliostat</code> also needs a <code>location</code> and
+      an <code>aim</code> point in field coordinates.  Its frame's
+      orientation can be changed (thus affecting its actuation kinematics)
+      using a <code>frame_orientation</code> message.  A
+      <code>heliostat_block</code> message, instead of having a
+      <code>location</code>, takes parameters specifying the spacing and number
+      of heliostats in the x and y directions.</li>
+  <li><code>receiver</code> defines the <code>type</code>,
+      <code>location</code>, and orienatation (via the <code>direction</code>
+      field) of the field's receiver.  <code>type</code> is a string specifying
+      which receiver shape from <code>src/receiver_surfaces.cc</code> to use;
+      at present this is "flat" for a square plate three meters on a side, or
+      "alec" for a curved surface (a quadratic surface of revolution used as
+      an early model by one of our team members) with a radius at its mouth of
+      1.68 meters.  The parameter <code>resolution</code> specifies the number
+      of discrete elements in each of two axes into which to divide the
+      receiver surface for the simulation; for example, with
+      <code>resolution</code> set to 10, the receiver will be divided into 100
+      discrete elements.  If you care only about properties of the field or
+      about flux delivered through the aperture, it's best to use the "flat"
+      receiver with <code>resolution</code> set to 1.</li>
+  <li><code>aperture</code> specifies the <code>location</code> and
+      <code>radius</code> of a circular aperture to be placed near the
+      receiver, along with an orientation specified by the <code>normal</code>
+      direction.  (Actually, due to the fact that we model all shapes in HOpS
+      as polygons, the aperture is approximated by a regular icosagon.)
+      If no <code>aperture</code> message is specified, light from heliostats
+      may strike the receiver from any direction.  Be aware when using a curved
+      receiver that, as an optimization, HOpS does not calculate blocking
+      between receiver elements.  Thus, if you use a curved receiver without
+      also using an aperture to provide blocking, you may get incorrect
+      results.</li>
+</ul>
+
+<p>Reflector curvature is defined by the single parameter
+<code>focal_length</code>.  Reflectors are assumed to be ideal flat Fresnel
+reflectors (by analogy with the Fresnel lens), rather than spherical or
+parabolic.  This approximation is valid as long as the size of a heliostat is
+much smaller than the distance between the heliostat and the receiver.</p>
+
+<p>The three systems of heliostat actuation kinematics are as follows:</p>
+<ul>
+  <li><code>DIRECT</code> means that the reflector is tilted directly from
+      a horizontal orientation by the shortest path to the desired normal.</li>
+  <li><code>AZI_ELE</code> models a conventional heliostat with a vertical
+      azimuth axis and a horizontal elevation axis that rotates with
+      azimuth.</li>
+  <li><code>PITCH_ROLL</code> models the heliostats designed by the RE&lt;C
+      team, which have a horizontal pitch axis and a roll axis that rotates
+      with pitch in the plane orthogonal to the pitch axis.</li>
+</ul>
+
+<p>Coordinates in a field configuration file may be expressed in any of the
+following systems, which are defined in
+<code>math/coordinates3d.h</code>:</p>
+<ul>
+  <li><code>CARTESIAN</code> takes coordinates in (x, y, z) tuples.
+      The x-axis points east, the y-axis points north, and the z-axis points
+      up.</li>
+  <li><code>CYLINDRICAL</code> takes coordinates in (&rho;, &phi;, z) tuples.
+      &rho; is distance from the z-axis.  &phi; is measured in radians from
+      the x-axis (east), increasing towards the y-axis (north).</li>
+  <li><code>SPHERICAL</code> takes coordinates in (r, &theta;, &phi;) tuples.
+      &theta; is inclination (or colatitude) meausured in radians.  That is,
+      vectors with &theta; equal to &pi;/2 lie in the x-y plane.  &phi; is as
+      above.</li>
+  <li><code>ASTRONOMICAL</code> takes coordinates in (altitude, azimuth,
+      elevation) tuples.  Altitude is vector magnitude, the same as r in
+      spherical coordinates.  Azimuth is a compass bearing (measured in degrees
+      from the y-axis and increasing towards the x-axis).  Elevation (sometimes
+      called latitude) is an angle measured in degrees from the x-y plane, with
+      positive values corresponding to the positive z-direction.</li>
+</ul>
+
+<p><code>src/examples</code> contains the following example configuration
+files:</p>
+<ul>
+  <li><code>curved_receiver_oblique_layout</code> models a square field of
+      heliostats with azimuth-elevation kinematics and trapezoidal
+      reflectors, aimed at a curved receiver located south of the field
+      and having an aperture with a 1.68 meter radius.
+      The sun moves automatically, with the field
+      presumed to be located in Barstow, California.</li>
+  <li><code>flat_receiver_overhead_layout</code> models a square field
+      heliostats with pitch-roll kinematics and rectangular reflectors,
+      aimed at a flat plate receiver located 50 meters above the center of the
+      field, without any aperture between the heliostats and the receiver.
+      Again, the sun moves automatically, with the field presumed to be located
+      in Barstow, California.</li>
+  <li><code>two_heliostats_layout</code> models two heliostats with
+      differently-shaped reflectors, positioned underneath a flat plate
+      receiver.  Two different locations of the sun in the sky are specified,
+      together with values of direct normal insolation in watts per square
+      meter.</li>
+</ul>
+
+
+<h3><a name=options>Options</a></h3>
+
+<p><code>--logtostderr</code> is recommended for visibility into what the
+program is doing and its progress.</p>
+
+<p>The flags <code>--start_time</code>, <code>--end_time</code>, and
+<code>--time_step</code> govern time in the simulation.  If the layout file
+specifies an automatic sun, these times should be expressed in Unix time
+(seconds since the epoch at 00:00:00 UTC on 1 January 1970).  If the layout
+file specifies manual sun positions,
+just set <code>--end_time</code> to the index of the last position in the list
+(that is, the length of the list minus 1) and leave <code>--start_time</code>
+and <code>--time_step</code> at their defaults (of 0 and 1 respectively).</p>
+
+<p><code>--disable_field_masking</code> ignores all shadowing and blocking
+effects within the field (but apertures still block).  It can dramatically
+increase the program's speed for a first-approximation simulation.</p>
+
+<p><code>--heliostat_aiming_error</code> is a value in radians, with default
+zero.  At each time step, each heliostat's aim is set to a direction differing
+from the ideal aim by a random amount drawn from a two-dimensional normal
+distribution with this value of standard deviation.</p>
+
+<p><code>--heliostat_facets_per_side</code> enables discrete convolution
+of the mirror shape with the sun shape in order to produce a more
+realistic reflection.  The default value of 1 treats each heliostat as
+a single infinitesimal facet producing a perfect reflection of the sun.
+(It's infinitesimal only for the purpose of calculating the reflected image;
+shadowing and blocking are always computed for the full area of the reflecting
+surface.)  Values of 4 or 5 have been found to produce fairly accurate images
+for receiver resolutions of about 10 by 10.</p>
+
+
+<h3><a name=output>Output</a></h3>
+
+<p>The output of <code>hops</code> is saved to text files formatted
+for plotting with the <code>pm3d</code> module in <code>gnuplot</code>.
+Outputs are enabled, and their filenames specified, using command-line flags
+to <code>hops</code>.</p>
+
+<p>Each row of output has five columns, separated by spaces, with
+<code>"</code> as a quote character:  The timestamp, x and y coordinates for
+plotting the results, the value being output, and a string describing the value
+(which should be the same for each row but is repeated for convenience).
+A single blank line separates blocks of data with constant y coordinate
+(this is needed by <code>pm3d</code>), and two blank lines separate blocks
+of data with constant time.</p>
+
+<h4>Field outputs</h4>
+<p>For heliostats' output, the x and y coordinates are
+each heliostat's x and y coordinates in the field.</p>
+
+<p><code>--heliostat_flux_in</code> outputs flux in watts incident on each
+heliostat surface.</p>
+
+<p><code>--heliostat_irradiance_in</code> outputs irradiance in watts per
+square meter incident on each heliostat surface.</p>
+
+<p><code>--heliostat_shadowing</code> outputs percent of light traveling
+towards each heliostat shadowed by other heliostats.</p>
+
+<p><code>--heliostat_blocking</code> outputs the percent of light emitted by
+each heliostat blocked by other optics (either heliostats or the aperture).
+Note that this is not the conventional definition of blocking, which includes
+only heliostats!</p>
+
+<p><code>--heliostat_flux_on_target</code> outputs the flux in watts from
+each heliostat that strikes the receiver surface.</p>
+
+<p><code>--heliostat_efficiency</code> outputs the percent of flux incident
+on each heliostat that that heliostat delivers to the receiver surface.</p>
+
+<h4>Receiver outputs</h4>
+<p>For receiver elements' output, the x and y coordinates are equal-area
+projections defined in <code>src/receiver_surfaces.cc</code>.</p>
+
+<p><code>--aperture_flux_spill</code> outputs the flux in watts that passes
+outside the aperture.</p>
+
+<p><code>--receiver_flux</code> outputs the flux in watts incident on each
+element of the receiver surface.</p>
+
+<p><code>--receiver_irradiance</code> outputs the irradiance in watts per
+square meter incident on each element of the receiver surface.</p>
+
+
+
+<h2><a name=visualization>Visualization of results</a></h2>
+
+<p>The script <code>src/plot_results.sh</code> can be used to turn
+output files into heat maps.  It requires <code>gnuplot</code> to be in
+your <code>PATH</code>.  Invoke it using:</p>
+<pre>
+src/plot_results.sh OUTPUT_FILENAME
+</pre>
+
+<p>The results will be saved to .png files with names formatted as
+<code>OUTPUT_FILENAME_TIMESTAMP.png</code>.</p>
+
+<p>If the output file to be plotted contains more than 5 time
+steps and <code>mencoder</code> is in your <code>PATH</code>,
+<code>plot_results.sh</code> will assemble the resulting plots into a .avi
+movie file using <code>mencoder</code>.</p>
+
+<p>Below are example plots of heliostat efficiency (percent
+of flux incident on a heliostat actually delivered to the
+receiver) and receiver irradiance for the configuration defined in
+<code>src/examples/curved_receiver_oblique_layout</code>.  The heliostat
+efficiency plot is a heat map of the heliostat field itself; the receiver
+is located south of the field at coordinates (0,0).</p>
+
+<a href="images/heliostat_efficiency_1321570800.png">
+  <img src="images/heliostat_efficiency_1321570800.png"
+       alt="heliostat_efficiency_1321570800.png"
+       title="Click for full size"
+       style="width:400px; border:1px solid blue; margin:5px; float:left">
+</a>
+
+<a href="images/receiver_irradiance_1321570800.png">
+  <img src="images/receiver_irradiance_1321570800.png"
+       alt="receiver_irradiance_1321570800.png"
+       title="Click for full size"
+       style="width:400px; border:1px solid blue; margin:5px; float:left">
+</a>
+
+<br clear=all></br>
+
+<p>These plots were produced by the following invocation
+of <code>hops</code>, with the resolution parameter in
+<code>src/examples/curved_receiver_oblique_layout</code> changed from
+10 to 60 to give a more detailed plot of the receiver:</p>
+<pre>
+./hops --layout_file=src/examples/curved_receiver_oblique_layout \
+  --start_time=1321570800 --end_time=1321570800 \
+  --receiver_irradiance=receiver_irradiance \
+  --heliostat_efficiency=heliostat_efficiency
+src/plot_results.sh receiver_irradiance
+src/plot_results.sh heliostat_efficiency
+</pre>
+
+<p>Note that the dates displayed above the plots are converted from the
+presumed Unix timestamps in the data file output by <code>hops</code>.  Thus,
+in the case of a configuration file specifying manual sun positions, these
+dates will be relative to the start of the Unix epoch and not otherwise
+meaningful.</p>
+
+
+
+<h2><a name=theory>Theory of operation</a></h2>
+
+
+<h3><a name=overview>Overview</a></h3>
+
+<p>HOpS works by passing data structures representing packets of light
+from one optical element to another.  These <code>IncidentLight</code>
+structures, defined in <code>src/optic.h</code>, record the intensity and
+direction of the light, as well as a blocking mask and a <code>const</code>
+pointer to the source object.  The sun object illuminates each heliostat,
+and each heliostat illuminates each element of the receiver that's visible
+to it.</p>
+
+<p>The advantages to this approach are that it is completely deterministic,
+and for some configurations it can be a great deal faster than ray tracing.
+The runtime scales with the product of the number of heliostat facets and
+the number of receiver elements, so for a detailed picture of a single
+heliostat's image or flux-through-aperture for a large field of heliostats,
+this approach can be ten to a hundred times faster than ray tracing.</p>
+
+<h3><a name=masking>Masking</a></h3>
+<p>Shadowing (masking of sunlight incident on a heliostat) and blocking
+(masking of light reflected by a heliostat) are calculated deterministically,
+with the resulting masks represented as <code>Polygons</code> objects (declared
+in <code>math/polygons.h</code>).</p>
+
+<img class="centered"
+     src="images/Heliostatblocking.png"
+     alt="Heliostatblocking.png"
+     title="Illustration of heliostat blocking">
+
+<p>Because the shadowing and blocking masks for a given reflector (or facet)
+are known exactly, we intersect them to compute the total blocking mask,
+avoiding double-counting and giving us a precise measure of shadowing and
+blocking for every heliostat.</p>
+
+
+<h3><a name=reflection>Reflection</a></h3>
+<p>The image produced by any reflective surface can be determined by
+integrating over the surface:  Each infinitesimal reflective element produces
+a perfect image of the source, and the resulting image
+is therefore a convolution.</p>
+
+<p>We can approximate this convolution operation by dividing a heliostat's
+reflector into discrete facets, each of which is treated as a perfect
+infinitesimal reflector.  This is enabled using the
+<code>--heliostat_facets_per_side</code> flag.</p>
+
+<p>In our case, the source is always the sun, which we approximate as a regular
+dodecagon of the Sun's true size and distance from Earth, subtending an angular
+diameter of about half a degree or nine milliradians.  For automatic sun
+positioning, the distance is determined exactly; for manual sun positioning it
+is assumed to be 1 AU.</p>
+
+<p>For an in-depth look at the convolution, see the
+<a href="#offaxis">appendix</a>.</p>
+
+
+<h3><a name=objects>Classes and objects</a></h3>
+
+<p>The simulation operates on optical elements (the class <code>Optic</code>).
+An <code>Optic</code> is a flat object with a polygonal shape (a
+<code>Polygon</code> structure or <code>Polygons</code> object),
+has a location and an orientation, and can receive packets of light
+(<code>IncidentLight</code> structures).</p>
+
+<p><code>Optic</code> has four subclasses:  <code>Sun</code>,
+<code>Heliostat</code>, <code>Aperture</code>, and
+<code>ReceiverElement</code>.  Additionally, a <code>Sun</code>
+object owns a <code>SunCalculator</code> object, which determines the
+<code>Sun</code>'s position in the sky either automatically (in the
+case of the <code>SOLPOS</code> subclass) or manually (in the case of
+the <code>SunPositionList</code> subclass).  Each <code>Heliostat</code>
+object owns a set of <code>HeliostatFacet</code> objects which represent
+a division of the reflector surface into finitely many facets, allowing
+the simulation to produce more accurate solar images through discrete
+convolution.  To see this effect in action, set up a field with just
+one heliostat and compare the <code>receiver_flux</code> between the
+default <code>--heliostat_facets_per_side=1</code> and a more realistic
+<code>--heliostat_facets_per_side=5</code>.</p>
+
+<p>These <code>Optic</code> elements are owned by containers of class
+<code>OpticContainer</code>.</p>
+
+<p><code>OpticContainer</code> has three subclasses:  <code>Sky</code>,
+<code>Field</code>, and <code>Receiver</code>.</p>
+
+<p><code>OpticContainer</code> objects are linked together
+by <code>OpticContainerConnection</code> objects.  An
+<code>OpticContainerConnection</code> stores visibility information.
+Suppose we have an <code>OpticContainerConnection</code> that connects
+<code>OpticContainer</code> X to <code>OpticContainer</code> Y.  For each
+<code>Optic</code> pair (x, y), where x is in X and y is in Y, the
+<code>OpticContainerConnection</code> stores a list of <code>Optic</code>
+objects in X that are capable of blocking, and a list of <code>Optic</code>
+objects in Y that are capable of shadowing, the path from x to y.</p>
+
+<p><code>OpticContainerConnection</code> is also the class responsible for
+orchestrating the communication of <code>IncidentLight</code> structures
+from one <code>OpticContainer</code> to another.</p>
+
+<p>Here is a sketch of the relationships between these objects:</p>
+
+<a href="Containers.gv">
+  <img class="centered"
+       src="images/Containers.png"
+       alt="Containers.png"
+       title="Click for the DOT source for this graph">
+</a>
+
+<p>Solid arrows denote ownership.  The dashed arrows represent the visibility
+relationship between <code>OpticContainer</code> objects encapsulated in
+the <code>OpticContainerConnection</code> objects.</p>
+
+
+<h3><a name=simulation>Simulation</a></h3>
+
+<p>Below is a partial class-level call graph for a <code>Simulate()</code>
+step, illustrating the sequence of method calls.  The <code>Simulate()</code>
+method in the <code>Simulation</code> object first calls the
+<code>UpdateSelf()</code> method in each of its <code>OpticContainer</code>
+members, which in turn call <code>UpdateSelf()</code> on their
+<code>Optic</code> members.  These methods don't perform any optical
+calculations; they simply clear the data the <code>Optic</code> objects stored
+at the previous timestep and allow the <code>Sun</code> to move in the sky and
+each <code>Heliostat</code> to reorient itself to stay on target.  Then
+<code>Simulation</code> calls the <code>Simulate()</code> method in each of its
+<code>OpticContainerConnection</code> members.  These objects recalculate their
+cached visibility information if necessary, then pass light from each source
+<code>Optic</code> to each destination <code>Optic</code> by calling
+<code>OutputIrradiance</code> on a source <code>Optic</code> to calculate
+output irradiance and store it in an <code>IncidentLight</code>
+structure, followed by <code>ReceiveIncidentLight</code> on a destination
+<code>Optic</code>.
+<code>OutputIrradiance</code> in turn calls <code>TransferIrradiance</code> to
+calculate the "transfer function" that converts each of an <code>Optic</code>
+object's incoming <code>IncidentLight</code> packets into an irradiance value
+for an outgoing <code>IncidentLight</code> packet.  This is nonzero only
+for <code>Heliostat</code> objects, which use this method to compute the
+sun's reflected image and combine this with their reflectivity, shadowing,
+and blocking to produce an "irradiance on target" value.</p>
+
+<a href="Simulate_call_graph.gv">
+  <img class="centered"
+       src="images/Simulate_call_graph.png"
+       alt="Simulate_call_graph.png"
+       title="Click for the DOT source for this graph">
+</a>
+
+
+
+<h2><a name=conclusion>Concluding remarks</a></h2>
+
+<p>HOpS proved to be a very useful tool for the RE&lt;C project.  By scripting
+it to run on a thousand machines in parallel, we were able to run comparative
+simulations of many different field configurations very quickly.</p>
+
+<p>For example, at one point we wanted to compare the performance of four
+different field layouts with three different receiver heights, three different
+aperture diameters, and three different magnitudes of heliostat aiming error,
+or 108 combinations in all.  We simulated sixty days of real insolation data at
+5-minute granularity, with 8970 time steps for each run.  We needed to know
+only the values of flux through the aperture (<code>--receiver_flux</code>) and
+flux spilled at the aperture (<code>--aperture_flux_spill</code>), and so we
+were able to use a single-element receiver (<code>resolution</code> set to 1 in
+the configuration files), allowing the simulation to run far faster than any
+ray tracer could.  Using one thousand machines, the whole experiment,
+including plotting of the results, took less than two hours, or about 7.5
+machine-seconds per time step.  By comparison, the commercial ray tracer
+LightTools, running on a modern desktop, takes about a minute per time step for
+a similar simulation.</p>
+
+<p>In testing HOpS during development, we compared its results to those
+produced by LightTools.  In our use cases, we found agreement to within one
+part in a thousand with <code>--heliostat_facets_per_side=5</code>.</p>
+
+<p>Due to its design, HOpS' runtime scales with the product of the total number
+of heliostat facets and the number of receiver elements.  Thus, it may take a
+long time to produce a detailed receiver flux map for a large field of
+heliostats.</p>
+
+
+
+<h2><a name=offaxis>Appendix: Off-axis astigmatism</a></h2>
+
+<p>In this appendix, we explore in depth the issue of imaging the sun in a
+canted curved reflector.  This will provide a useful background for
+understanding how heliostats focus light and the limitations of their
+performance, as well as the convolution that HOpS uses to produce reflected
+images of the sun.</p>
+
+<p>The effect we describe here is usually termed astigmatism, not to be
+confused with coma, which is a next-order optical aberration which becomes
+important only for optical systems in which the focal length of the reflector
+(or lens) is comparable to its width.</p>
+
+
+<h3><a name=twodimensions>In two dimensions</a></h3>
+
+<p>Imagine an ideal mirror with focal length f, where f is much larger than
+the width of the mirror.  This means that parallel normal incident rays
+reflect to meet at a point A a distance f from the mirror surface.  This is
+illustrated by the blue rays in the following diagram.  (We shall use Greek
+letters for angles, capital Roman letters for points, and lower-case Roman
+letters for lengths.)</p>
+
+<p><img class="centered" alt="perpendicular_focus.png"
+        src="images/perpendicular_focus.png"></p>
+
+<p>Here the focal point is A, and the mirror is
+BC (drawn as a flat surface because the curvature is assumed small).  Assume
+WLOG that the rays strike at the edges of the mirror, a distance</p>
+
+<img class="equation"
+     alt="d = 2 f tan(theta)"
+     src="images/equation00.png">
+
+<p>apart.</p>
+
+<p>But what if the rays are parallel to each other but not
+normal to the mirror?  At what distance from the mirror do they intersect?
+Adding the new non-normal rays in red to the diagram above, we get:</p>
+
+<img class="centered" alt="oblique_focus.png" src="images/oblique_focus.png">
+
+<p>Let the angle between the incident red rays and the vertical be &alpha;
+and the point of intersection of the reflected red rays be A&prime;.</p>
+
+<p>Let the angle between the left-hand reflected red ray and the line BC be</p>
+<img class="equation"
+     alt="beta = pi/2 - theta - alpha"
+     src="images/equation01.png">.
+<p> Likewise we have</p>
+<img class="equation"
+     alt="gamma = pi/2 - theta + alpha"
+     src="images/equation02.png">
+<p>for the right-hand reflected ray.  Then the angle at A&prime; is</p>
+<img class="equation"
+     alt="pi - beta - gamma = 2 theta"
+     src="images/equation03.png">,
+<p> the same as the angle at A.  Therefore the isosceles triangles ABC,
+A&prime;B&prime;C, and A&prime;BC&prime; are all similar.</p>
+
+<p>The distance from A&prime; to the mirror could be measured to one edge of
+the mirror or to the other, or to some point in between.  Let g be the height
+of triangle A&prime;B&prime;C and h be the height of triangle
+A&prime;BC&prime;.  Let f&prime; be the height of a triangle similar to these
+two triangles whose base passes through O; we will define this to be the
+distance we seek.</p>
+
+<p>Annotating the diagram further:</p>
+
+<img class="centered" alt="anotated_focus.png" src="images/annotated_focus.png">
+
+<p>Let u be the length of B&prime;C (equal to EF), and let v be the length of
+BC&prime;.  Let &delta; be the angle CBC&prime;.  Since A&prime;BC&prime; is
+similar to ABC, it is clear that</p>
+
+<img class="equation"
+     alt="alpha + beta = beta + delta"
+     src="images/equation04.png">
+
+<p>and so</p>
+
+<img class="equation"
+     alt="alpha = delta"
+     src="images/equation05.png">.
+
+<p>Now we can calculate the length of the triangle bases B&prime;C and
+BC&prime;, and from there determine g and h.</p>
+
+<p>Let</p>
+<img class="equation"
+     alt="x = d cos(delta) = d cos(alpha)"
+     src="images/equation06.png">
+
+<p>be the length of BF and</p>
+
+<img class="equation"
+     alt="y = d sin(delta) = d sin(alpha)"
+     src="images/equation07.png">
+
+<p>be the length of FC (which is the same as EB&prime;).  Then using the
+triangle CFC&prime;, we can calculate the length of FC&prime; (and BE) to
+be</p>
+
+<img class="equation"
+     alt="e = y tan(theta) = d sin(alpha) tan(theta)"
+     src="images/equation08.png">.
+
+<p>Now we know that</p>
+
+<img class="equation"
+     alt="u = x - e = d (cos(alpha) - sin(alpha) tan(theta))"
+     src="images/equation09.png">
+
+<p>and</p>
+
+<img class="equation"
+     alt="v = x + e = d (cos(alpha) + sin(alpha) tan(theta))"
+     src="images/equation10.png">.
+
+<p>Therefore, by triangle similarity,</p>
+
+<img class="equation"
+     alt="g/f = u/d = cos(alpha) - sin(alpha) tan(theta)"
+     src="images/equation11.png">
+
+<p>and</p>
+
+<img class="equation"
+     alt="h/f = v/d = cos(alpha) + sin(alpha) tan(theta)"
+     src="images/equation12.png">.
+
+<p>Since O is the midpoint of BC, OO&prime; is midway between B&prime;C and
+BC&prime;.  Hence the distance A&prime;O&prime; is the mean of g and h.  That
+is,</p>
+
+<img class="equation"
+     alt="f' = f cos(alpha)"
+     src="images/equation13.png">.
+
+<h3><a name=threedimensions>In three dimensions</a></h3>
+
+<p>The above derivation works for two dimensions, with a one-dimensional mirror
+surface.  In three dimensions, with a two-dimensional mirror surface, there is
+one direction in the mirror plane in which the
+incident rays are normal and a direction orthogonal to that one in which they
+aren't.  Therefore there are two focal lengths at work: the ordinary focal
+length f, and the astigmatic focal length f&prime;.  In one direction, the rays
+focus at distance f, and in the other direction, they focus at distance
+f&prime;.</p>
+
+<img class="centered"
+     alt="three_dimensional_focus.png"
+     src="images/three_dimensional_focus.png">
+
+<h3><a name=defocused>Defocused images</a></h3>
+
+<p>The parallel incident rays in the discussions above may be
+considered as coming from a distant point source.  The image of this point
+source formed at a distance x from the mirror is a diagonal linear
+transformation (that is, a scaling-and-squeezing) of the mirror surface, as
+depicted in the diagram below.  (The dotted lines should be centered within
+the dashed quadrilaterals, but perspective drawing is hard.)</p>
+
+<img class="centered"
+     alt="defocused_imaging.png"
+     src="images/defocused_imaging.png">
+
+<p>The scale factor along the normal direction is</p>
+
+<img class="equation"
+     alt="(f - x)/f"
+     src="images/equation14.png">,
+
+<p>and the scale factor along the astigmatic direction is</p>
+
+<img class="equation"
+     alt="(f' - x')/f'"
+     src="images/equation15.png">.
+
+<p>A negative value for a scale
+factor means that the image is flipped in that axis.</p>
+
+<p>The image of a source of finite extent
+(the sun, for example) is the locus of the images of all the rays from the
+source; that is, a convolution of the above transformation of the mirror's
+shape with the source's shape.</p>
+
+<img class="centered" alt="convolution.png" src="images/convolution.png">
+
+<p>The extent of this image in either
+direction is therefore the width of a point reflection of the source (ie. its
+angular width &phi; times the distance
+of the image from the mirror) plus the width of the image of the mirror under
+the above linear transformation.</p>
+
+<p>In particular, if the mirror has width d<sub>n</sub>
+in the normal direction and width d<sub>a</sub>
+in the astigmatic direction, then the extent of the image
+in the normal direction is</p>
+
+<img class="equation"
+     alt="c_n = a_n + b_n = x phi + d_n |f - x| / f = x phi + d_n |1 - x/f|"
+     src="images/equation16.png">,
+
+<p>and the extent of the image in the astigmatic direction is</p>
+
+<img class="equation"
+     alt="c_a = x phi + d_a |1 - x / (f cos(alpha))|"
+     src="images/equation17.png">.
+
+<p>The minimum total image spread is the isotropic case
+c<sub>n</sub> = c<sub>a</sub>, or</p>
+
+<img class="equation"
+     alt="|1 - x/f| = |1 - x / (f cos(alpha))|"
+     src="images/equation18.png">,
+
+<p>which gives</p>
+
+<img class="equation"
+     alt="x/f = 2 cos(alpha) / (1 + cos(alpha))"
+     src="images/equation19.png">
+
+<p>and thus</p>
+
+<img class="equation"
+alt="|1 - x/f| = |1 - x/(f cos(alpha))| = (1 - cos(alpha)) / (1 + cos(alpha))"
+src="images/equation20.png">.
+
+</body>
+
+</html>

@@ -1,0 +1,77 @@
+Standard installation instructions:
+  This will install the necessary libraries to the standard location on your
+  machine, usually /usr/local.
+
+  Step 0:  Install prerequisite libraries
+    http://code.google.com/p/google-gflags/
+    http://code.google.com/p/google-glog/
+    http://code.google.com/p/protobuf/
+  For each library, checkout (or download and expand) the source, then build
+  and install:
+    ./configure
+    make
+    sudo make install
+
+
+  Step 1:  Configure Autotools
+    autoreconf --force --install --verbose
+    ./configure
+
+
+  Step 2:  Build HOpS
+    make hops
+  Alternately:  Build HOpS and run unittests
+    make check
+
+
+  Step 3:  Run HOpS (example)
+    ./hops --logtostderr \
+      --layout_file=src/examples/two_heliostats_layout \
+      --start_time=0 --end_time=1 --receiver_flux=rf
+
+
+  Step 4:  Plot results (example)
+    src/plot_results.sh rf
+    {display,open} rf_0.png rf_1.png
+
+
+Alternate installation instructions:
+  Use these if you don't have root on your machine, or if you want to install
+  the prerequisite libraries somewhere nonstandard.  Below, <my_directory>
+  means the absolute path to the directory in which you want to install these
+  libraries.
+
+  Step 0:  Install prerequisite libraries
+    http://code.google.com/p/google-gflags/
+    http://code.google.com/p/google-glog/
+    http://code.google.com/p/protobuf/
+  For each library, checkout (or download and expand) the source, then build
+  and install:
+    ./configure --prefix=<my_directory>
+    make
+    make install
+
+
+  Step 1:  Configure Autotools
+    autoreconf --force --install --verbose
+    PATH="<my_directory>/bin:$PATH" \
+      LDFLAGS="$LDFLAGS -L<my_directory>/lib" \
+      CPPFLAGS="$CPPFLAGS -I<my_directory>/include" \
+      ./configure
+
+
+  Step 2:  Build HOpS
+    LD_LIBRARY_PATH=<my_directory>/lib make hops
+  Alternately:  Build HOpS and run unittests
+    LD_LIBRARY_PATH=<my_directory>/lib make check
+
+
+  Step 3:  Run HOpS (example)
+    LD_LIBRARY_PATH=<my_directory>/lib GLOG_logtostderr=1 ./hops \
+      --layout_file=src/examples/two_heliostats_layout \
+      --start_time=0 --end_time=1 --receiver_flux=rf
+
+
+  Step 4:  Plot results (example)
+    src/plot_results.sh rf
+    {display,open} rf_0.png rf_1.png

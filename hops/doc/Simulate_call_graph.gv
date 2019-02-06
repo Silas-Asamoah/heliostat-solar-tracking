@@ -1,0 +1,23 @@
+digraph Simulate {
+  size="8,8";
+  nodesep=1.0;
+  ordering=out;
+
+  main;
+  Simulation [shape=box];
+  OpticContainerConnection [shape=box];
+  OpticContainer [shape=record,label="{OpticContainer|{Sky|Field|Receiver}}"];
+  {
+    rank = same;
+    Optic1 [shape=record,label="{Optic|{Sun|Heliostat}|{Aperture|ReceiverElement}}"];
+    Optic2 [shape=record,label="{Optic|{Sun|Heliostat}|{Aperture|ReceiverElement}}"];
+  }
+
+  main -> Simulation [label="1: Simulate()"]
+  Simulation -> OpticContainer [label="2: UpdateSelf()"];
+  OpticContainer -> Optic1 [label="3: UpdateSelf()"];
+  Simulation -> OpticContainerConnection [label="4: Simulate()"];
+  OpticContainerConnection -> Optic1 [label="5: OutputIrradiance()"];
+  Optic1 -> Optic1 [label="6: TransferIrradiance()",tailport=e,headport=e];
+  OpticContainerConnection -> Optic2 [label="7: ReceiveIncidentLight()"];
+}
