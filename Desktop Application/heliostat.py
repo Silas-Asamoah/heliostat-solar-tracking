@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk 
 from tkinter import Menu
 
+import calendar
+
 #Create Instance
 win = tk.Tk()
 win.title("Sun Tacking Heliostat Programme")
@@ -142,6 +144,12 @@ yearChosen.current(0)
 month_label = ttk.Label(win, text='Month')
 month_number = tk.StringVar()
 monthChosen = ttk.Combobox(win, width=12, textvariable = month_number)
+
+# Getting month names
+for month_idx in range(0, 12):
+    heliostat_month = calendar.month_name[month_idx]
+
+monthChosen['values'] = heliostat_month
 monthChosen.grid()
 monthChosen.current(0)
 
