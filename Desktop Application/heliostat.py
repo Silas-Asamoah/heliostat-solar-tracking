@@ -151,9 +151,15 @@ for month_idx in range(0, 12):
 
 monthChosen['values'] = heliostat_month
 monthChosen.grid()
-monthChosen.current(0)
+monthChosen.current(heliostat_month[0])
 
-
+# DAY
+day_label = ttk.Label(win, text='Day')
+day_number = tk.StringVar()
+dayChosen = ttk.Combobox(win, width=12, textvariable=day_number)
+dayChosen['values']
+dayChosen.grid()
+dayChosen.current()
 
 
 
