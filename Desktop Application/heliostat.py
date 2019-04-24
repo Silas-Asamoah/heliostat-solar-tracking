@@ -80,12 +80,16 @@ targetChosen['values'] = (1, 2, 3, 4, 5)
 targetChosen.grid(column = 4, row = 1)
 
 #Sun Altitude
-sun_label = ttk.Label(win, text='Sun Altitude')
+sun_label_one = ttk.Label(win, text='Sun Altitude')
 sun_altitude = tk.StringVar()
-sunAltitudeChosen
+# sunAltitudeChosen
 
 
-#
+#Sun Azimuth
+sun_label_two = ttk.Label(win, tex="Sun Azimuth")
+sun_azimuth = tk.StringVar()
+
+
 
 #Arduino COM PORT
 com_port_label = ttk.Label(win, text='Select COM Port')
