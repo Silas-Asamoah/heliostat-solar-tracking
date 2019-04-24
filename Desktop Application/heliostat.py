@@ -116,4 +116,38 @@ portChosen.grid(row = 0, column = 5)
 com_action = ttk.Button(win, text='Connect to Arduino', command='arduinoConnect')
 
 
+# --------------------------------------------------------------------------------------------------------
+# RHS
+
+def startSimulation():
+    print("Start Simulation of the Heliostat")
+
+# Year Month Day Hour Longitude latitude time zone 
+
+
+#Simulation button
+simulStart = ttk.Button(win, text="Activate Simualation Mode", command = startSimulation)
+
+#CALENDAR
+# YEAR
+year_label = ttk.Label(win, text='Year')
+year_number = tk.StringVar()
+yearChosen = ttk.Combobox(win, width=12, textvariable= year_number)
+yearChosen['values'] = (2015, 2016, 2017 ,2018, 2019)
+yearChosen.grid()
+yearChosen.current(0)
+
+
+# MONTH
+month_label = ttk.Label(win, text='Month')
+month_number = tk.StringVar()
+monthChosen = ttk.Combobox(win, width=12, textvariable = month_number)
+monthChosen.grid()
+monthChosen.current(0)
+
+
+
+
+
+
 win.mainloop()
