@@ -86,8 +86,24 @@ sun_altitude = tk.StringVar()
 
 
 #Sun Azimuth
-sun_label_two = ttk.Label(win, tex="Sun Azimuth")
+sun_label_two = ttk.Label(win, text="Sun Azimuth")
 sun_azimuth = tk.StringVar()
+
+# Machine Altitude
+mach_alt_label = ttk.Label(win, text="Machine Altitude")
+machine_one = tk.StringVar()
+
+# Machine Azimuth
+mach_azi_label = ttk.Label(win, text="Machine Azimuth")
+machine_two = tk.StringVar()
+
+# Target Altitude
+target_alt_label = ttk.Label(win, text="Target Altitude")
+target_one = tk.StringVar()
+
+# Target Azimuth
+target_azi_label = ttk.Label(win, text='Target Azimuth')
+target_two = tk.StringVar()
 
 
 
