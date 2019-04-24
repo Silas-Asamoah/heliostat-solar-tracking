@@ -162,6 +162,18 @@ dayChosen.grid()
 dayChosen.current()
 
 
+# Heliostat MisAlignment
+helio_azi_error = ttk.Label(win, text="Heliostat Azimuth MisAlignment")
+helio_alt_error = ttk.Label(win, text='Heliostat Altitude MisAlignment')
+
+#Target Orientation
+target_distance = ttk.Label(win, text='Distance to Target')
+alt_orientation = ttk.Label(win, text='Targets Alt Orientation')
+azi_orientation = ttk.Label(win, text='Targets Azi Orientation')
+
+move_target = ttk.Button(win, text='Move/Rotate Target')
+
+#Longtiude Latitude TimeZone
 
 
 win.mainloop()
