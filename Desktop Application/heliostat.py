@@ -22,9 +22,14 @@ Connect to Arduino
 menuBar = Menu(win)
 win.config(menu = menuBar)
 
+
+#Tool Menu
 toolMenu = Menu(menuBar)
 toolMenu.add_command(label="Tools")
-menuBar.add_cascade(label='File', menu=toolMenu)
+
+#Help Menu
+helpMenu = Menu(menuBar)
+helpMenu.add_command(label='Help')
 
 #Adding a button
 
@@ -80,11 +85,15 @@ sun_altitude = tk.StringVar()
 sunAltitudeChosen
 
 
+#
+
 #Arduino COM PORT
 com_port_label = ttk.Label(win, text='Select COM Port')
 com_port_number = tk.StringVar()
 portChosen = ttk.Combobox(win, width=12, textvariable = com_port_number)
 portChosen['values'] = ('COM9', 'COM10', 'COM11', 'COM12')
+portChosen.grid(row = 0, column = 5)
 com_action = ttk.Button(win, text='Connect to Arduino', command='arduinoConnect')
+
 
 win.mainloop()
