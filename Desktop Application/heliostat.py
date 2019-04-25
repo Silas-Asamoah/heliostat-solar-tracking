@@ -178,5 +178,7 @@ latitude = tk.Label(win, text='Latitude')
 longitude = tk.Label(win, text='Longitude')
 time_zone = tk.Label(win, text='Time Zone')
 
+#Coloured Areas
+
 
 win.mainloop()
