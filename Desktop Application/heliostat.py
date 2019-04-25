@@ -174,6 +174,9 @@ azi_orientation = ttk.Label(win, text='Targets Azi Orientation')
 move_target = ttk.Button(win, text='Move/Rotate Target')
 
 #Longtiude Latitude TimeZone
+latitude = tk.Label(win, text='Latitude')
+longitude = tk.Label(win, text='Longitude')
+time_zone = tk.Label(win, text='Time Zone')
 
 
 win.mainloop()
