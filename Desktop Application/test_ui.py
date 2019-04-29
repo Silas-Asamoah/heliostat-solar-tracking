@@ -15,6 +15,7 @@ class DrumMachine:
         self.beats_per_minutes = INITIAL_BEATS_PER_MINUTE
         self.all_patterns = [None] * MAX_NUMBER_OF_PATTERNS
         self.init_all_patterns()
+        self.init_gui()
 
     def init_all_patterns(self):
         self.all_patterns = [
@@ -33,6 +34,12 @@ class DrumMachine:
 
     def init_is_button_clicked_list(self, num_of_rows, num_of_columns):
         return [[False] * num_of_columns for x in range(num_of_rows)]
+
+    def init_gui(self):
+        self.create_top_bar()
+        self.create_left_drum_loader()
+        self.create_right_button_matrix()
+        self.create_play_bar()
 
 
 if __name__ =='__main__':
