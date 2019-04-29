@@ -1,184 +1,60 @@
-import tkinter as tk 
-from tkinter import ttk 
-from tkinter import Menu
+from tkinter import Tk, Menu, Label
+import math
 
-import calendar
-
-#Create Instance
-win = tk.Tk()
-win.title("Sun Tacking Heliostat Programme")
-
-# a_label = ttk.Label(win, text='Heliostat Calculations').grid(column=0, row=0)
-
-'''
-Machine Number Target Group === DropDown of Numbers
-Sun's Altitude Sun's Azimuth
-Machine's Altitude Machine's Azimuth
-Target's ALtitude Target's Azimuth
-
-Select COM Port -- COM 9
-Connect to Arduino 
-
-'''
-# Menu Bar
-menuBar = Menu(win)
-win.config(menu = menuBar)
+# Constants
+PROGRAM_NAME = 'Heliostat Sun Tracking Control Program'
+TARGET_GROUP = 1
+MACHINE_NUMBER = 1
+MAXIMUM_MACHINE_ALTITUDE = 180
+MAXIMUM_MACHINE_AZIMUTH = 180
 
 
-#Tool Menu
-toolMenu = Menu(menuBar)
-toolMenu.add_command(label="Tools")
+class Heliostat:
 
-#Help Menu
-helpMenu = Menu(menuBar)
-helpMenu.add_command(label='Help')
+    def __init__(self, root):
+        self.root = root
+        self.root.title(PROGRAM_NAME)
+        self.target_group = TARGET_GROUP
+        self.machine_number = MACHINE_NUMBER
 
-#Adding a button
+    def init_all_positions(self):
+        self.all_positions = [
+            {
+                'sun_altitude',
+                'sun_azimuth',
+                'machine_altitude',
+                'machine_azimuth',
+                'target_altitude',
+                'target_azimuth'
+            }
+            
+        ]
 
-# action.grid(column=1, row=1)
-
-def arduinoConnect():
-    print("Connection to Arduino Successful")
-
-
-def clickMe():
-    action.configure(text='Hello ' + name.get())
-
-
-action = ttk.Button(win, text="Click Me!", command = clickMe)
-
-#Textbox Entry Widget
-name = tk.StringVar()
-nameEntered = ttk.Entry(win, width=12, textvariable=name)
-nameEntered.grid(column=0, row =1)
-nameEntered.focus()
-
-action.grid(column=2, row=1)
-
-#Adding a Label
-ttk.Label(win, text="Enter a name:").grid(column=0, row = 0)
-
-ttk.Label(win, text='Choose a number:').grid(column=1, row=0)
-number = tk.StringVar()
-numberChosen = ttk.Combobox(win, width=12, textvariable=number)
-numberChosen['values'] = (1, 2, 4, 42, 100)
-numberChosen.grid(column=1, row=1)
-numberChosen.current(3)
+    
 
 
-#Machine Number
-machine_label = ttk.Label(win, text='Machine Number')
-machine_number = tk.StringVar()
-machineChosen = ttk.Combobox(win, width=12, textvariable=machine_number)
-machineChosen['values'] = (1, 2, 3 ,4, 5)
-machineChosen.grid(column=3, row = 0)
-machineChosen.current(0)
-
-#Target Group
-target_label = ttk.Label(win, text='Target Group')
-target_group = tk.StringVar() 
-targetChosen = ttk.Combobox(win, width=12, textvariable=target_group)
-targetChosen['values'] = (1, 2, 3, 4, 5)
-targetChosen.grid(column = 4, row = 1)
-
-#Sun Altitude
-sun_label_one = ttk.Label(win, text='Sun Altitude')
-sun_altitude = tk.StringVar()
-# sunAltitudeChosen
+    def create_heliostat_position(self):
+        print("Various positions of the Heliostat")
 
 
-#Sun Azimuth
-sun_label_two = ttk.Label(win, text="Sun Azimuth")
-sun_azimuth = tk.StringVar()
-
-# Machine Altitude
-mach_alt_label = ttk.Label(win, text="Machine Altitude")
-machine_one = tk.StringVar()
-
-# Machine Azimuth
-mach_azi_label = ttk.Label(win, text="Machine Azimuth")
-machine_two = tk.StringVar()
-
-# Target Altitude
-target_alt_label = ttk.Label(win, text="Target Altitude")
-target_one = tk.StringVar()
-
-# Target Azimuth
-target_azi_label = ttk.Label(win, text='Target Azimuth')
-target_two = tk.StringVar()
+    def create_top_menu(self):
+        self.menu_bar = Menu(self.root)
+        self.file_menu = Menu(self.menu_bar, tearoff = 0)
+        self.file_menu.add_command(label='Tools')
+        self.file_menu.add_command(label='Help')
+        self.about_menu = Menu(self.menu_bar, tearoff=0)
+        self.about_menu.add_command(label='About')
+        self.root.config(menu=self.menu_bar)
 
 
-
-#Arduino COM PORT
-com_port_label = ttk.Label(win, text='Select COM Port')
-com_port_number = tk.StringVar()
-portChosen = ttk.Combobox(win, width=12, textvariable = com_port_number)
-portChosen['values'] = ('COM9', 'COM10', 'COM11', 'COM12')
-portChosen.grid(row = 0, column = 5)
-com_action = ttk.Button(win, text='Connect to Arduino', command='arduinoConnect')
+    def init_gui(self):
+        self.create_top_menu()
+        self.create_heliostat_position()
+        self.create_graphical_display()
+        self.create_simulation_controls()
 
 
-# --------------------------------------------------------------------------------------------------------
-# RHS
-
-def startSimulation():
-    print("Start Simulation of the Heliostat")
-
-# Year Month Day Hour Longitude latitude time zone 
-
-
-#Simulation button
-simulStart = ttk.Button(win, text="Activate Simualation Mode", command = startSimulation)
-
-#CALENDAR
-# YEAR
-year_label = ttk.Label(win, text='Year')
-year_number = tk.StringVar()
-yearChosen = ttk.Combobox(win, width=12, textvariable= year_number)
-yearChosen['values'] = (2015, 2016, 2017 ,2018, 2019)
-yearChosen.grid()
-yearChosen.current(0)
-
-
-# MONTH
-month_label = ttk.Label(win, text='Month')
-month_number = tk.StringVar()
-monthChosen = ttk.Combobox(win, width=12, textvariable = month_number)
-
-# Getting month names
-for month_idx in range(0, 12):
-    heliostat_month = calendar.month_name[month_idx]
-
-monthChosen['values'] = heliostat_month
-monthChosen.grid()
-monthChosen.current(heliostat_month[0])
-
-# DAY
-day_label = ttk.Label(win, text='Day')
-day_number = tk.StringVar()
-dayChosen = ttk.Combobox(win, width=12, textvariable=day_number)
-dayChosen['values']
-dayChosen.grid()
-dayChosen.current()
-
-
-# Heliostat MisAlignment
-helio_azi_error = ttk.Label(win, text="Heliostat Azimuth MisAlignment")
-helio_alt_error = ttk.Label(win, text='Heliostat Altitude MisAlignment')
-
-#Target Orientation
-target_distance = ttk.Label(win, text='Distance to Target')
-alt_orientation = ttk.Label(win, text='Targets Alt Orientation')
-azi_orientation = ttk.Label(win, text='Targets Azi Orientation')
-
-move_target = ttk.Button(win, text='Move/Rotate Target')
-
-#Longtiude Latitude TimeZone
-latitude = tk.Label(win, text='Latitude')
-longitude = tk.Label(win, text='Longitude')
-time_zone = tk.Label(win, text='Time Zone')
-
-#Coloured Areas
-
-
-win.mainloop()
+if __name__ == '__main__':
+    root = Tk()
+    Heliostat(root)
+    root.mainloop()
