@@ -1,4 +1,4 @@
-from tkinter import Tk 
+from tkinter import Tk, Frame, Label, Spinbox, Entry, Menu
 
 PROGRAM_NAME = 'Explosion Drum Machine'
 MAX_NUMBER_OF_PATTERNS = 10
@@ -14,6 +14,7 @@ class DrumMachine:
         self.root.title(PROGRAM_NAME)
         self.beats_per_minutes = INITIAL_BEATS_PER_MINUTE
         self.all_patterns = [None] * MAX_NUMBER_OF_PATTERNS
+        self.current_pattern_index = 0
         self.init_all_patterns()
         self.init_gui()
 
@@ -35,7 +36,33 @@ class DrumMachine:
     def init_is_button_clicked_list(self, num_of_rows, num_of_columns):
         return [[False] * num_of_columns for x in range(num_of_rows)]
 
+    def create_top_bar(self):
+        topbar_frame = Frame(self.root, height = 25)
+        topbar_frame.grid(row=0, column=12, rowspan=10, padx=5, pady=5)
+
+        Label(topbar_frame, text='Pattern Number:').grid(row=0, column=1)
+        self.pattern_index_widget = Spinbox(topbar_frame, from_=0, to=MAX_NUMBER_OF_PATTERNS - 1, width=5, command=self.on_pattern_changed)
+        self.pattern_index_widget.grid(row=0, column=2)
+        self.current_pattern_index
+
+
+
+    def create_top_menu(self):
+        self.menu_bar = Menu(self.root)
+        self.file_menu = Menu(self.menu_bar, tearoff = 0)
+        self.file_menu.add_command(label='Load Project')
+        self.file_menu.add_command(label='Save Project')
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label='Exit')
+        self.menu_bar.add_cascade(label='File', menu=self.file_menu)
+        self.about_menu = Menu(self.menu_bar, tearoff = 0)
+        self.about_menu.add_command(label='About')
+        self.menu_bar.add_cascade(label='About', menu=self.about_menu)
+        self.root.config(menu=self.menu_bar)
+
+
     def init_gui(self):
+        self.create_top_menu()
         self.create_top_bar()
         self.create_left_drum_loader()
         self.create_right_button_matrix()
