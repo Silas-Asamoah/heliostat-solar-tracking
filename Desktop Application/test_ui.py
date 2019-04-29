@@ -6,6 +6,8 @@ MAX_NUMBER_OF_DRUM_SAMPLES = 5
 INITIAL_NUMBER_OF_UNITS = 4
 INITIAL_BPU = 4
 INITIAL_BEATS_PER_MINUTE = 240 
+MAX_NUMBER_OF_UNITS = 5
+MAX_BPU = 5
 
 class DrumMachine:
 
@@ -43,8 +45,20 @@ class DrumMachine:
         Label(topbar_frame, text='Pattern Number:').grid(row=0, column=1)
         self.pattern_index_widget = Spinbox(topbar_frame, from_=0, to=MAX_NUMBER_OF_PATTERNS - 1, width=5, command=self.on_pattern_changed)
         self.pattern_index_widget.grid(row=0, column=2)
-        self.current_pattern_index
+        self.current_pattern_name_widget = Entry(topbar_frame)
+        self.current_pattern_name_widget.grid(row=0 , column=3, padx=7, pady=2)
 
+        Label(topbar_frame, text='Number of Units:').grid(row=0, column=4)
+        self.number_of_units_widget = Spinbox(topbar_frame, from_=1, to=MAX_NUMBER_OF_UNITS, width=5, command=self.on_number_of_units_changed)
+        self.number_of_units_widget.delete(0, 'end')
+        self.number_of_units_widget.insert(0, INITIAL_NUMBER_OF_UNITS)
+        self.number_of_units_widget.grid(row=0, column=5)
+
+        Label(topbar_frame, text='BPUs:').grid(row=0, column=6)
+        self.bpu_widget = Spinbox(topbar_frame, from_=1, to=MAX_BPU, width = 5, command = self.on_bpu_changed)
+        self.bpu_widget.grid(row=0, column=7)
+        self.bpu_widget.delete(0, 'end')
+        self.bpu_widget.insert(0, INITIAL_BPU)
 
 
     def create_top_menu(self):
