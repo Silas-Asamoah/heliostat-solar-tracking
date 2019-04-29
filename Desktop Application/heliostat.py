@@ -1,4 +1,4 @@
-from tkinter import Tk, Menu, Label
+from tkinter import Tk, Menu, Label, Frame
 import math
 
 # Constants
@@ -34,6 +34,20 @@ class Heliostat:
 
 
     def create_heliostat_position(self):
+        helio_frame = Frame(self.root, height=25)
+        helio_frame.grid(row=0, column=12, rowspan=10, padx=5, pady=5)
+        #Distinct Label
+        Label(helio_frame, text='Machine Number').grid(row = 0, column = 1)
+        Label(helio_frame, text='Target Group').grid(row=0, column=2)
+        Label(helio_frame, text='Sun Altitude').grid(row=1, column=1)
+        Label(helio_frame, text='Sun Azimuth').grid(row=1, column=2)
+        Label(helio_frame, text='Machine Altitude').grid(row=2, column=1)
+        Label(helio_frame, text='Machine Azimuth').grid(row=2, column=2)
+        Label(helio_frame, text='Target Altitude').grid(row=3, column=1)
+        Label(helio_frame, text='Select COM Port').grid(row=5, column=1)
+        
+
+
         print("Various positions of the Heliostat")
 
 
