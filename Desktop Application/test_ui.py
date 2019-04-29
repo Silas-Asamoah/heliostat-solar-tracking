@@ -35,6 +35,27 @@ class DrumMachine:
             for k in range(MAX_NUMBER_OF_PATTERNS)
         ]
 
+    def on_pattern_changed(self):
+        pass
+
+    def on_number_of_units_changed(self):
+        pass
+
+    def on_bpu_changed(self):
+        pass
+
+    def on_open_file_button_clicked(self):
+        pass
+
+    def on_play_button_clicked(self):
+        pass
+
+    def on_loop_button_toggled(self):
+        pass 
+
+    def on_beats_per_minute_changed(self):
+        pass
+
     def init_is_button_clicked_list(self, num_of_rows, num_of_columns):
         return [[False] * num_of_columns for x in range(num_of_rows)]
 
