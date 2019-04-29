@@ -38,4 +38,4 @@ class DrumMachine:
 if __name__ =='__main__':
     root = Tk()
     DrumMachine(root)
-    root.mainloo
+    root.mainloop()
