@@ -1,6 +1,8 @@
 from tkinter import Tk, Menu, Label, Frame, Button
 import math
 import serial
+import time 
+import csv
 
 # Constants
 PROGRAM_NAME = 'Heliostat Sun Tracking Control Program'
@@ -18,11 +20,14 @@ while True:
         ser_bytes = ser_port.readline()
         decoded_bytes = float(ser_bytes[0: len(ser_bytes) - 2].decode('utf-8'))
         print(decoded_bytes)
+        with open('heliostat_data.csv', 'a') as f:
+            writer = csv.writer(f, delimiter=',')
+            writer.writerow([time.time(), decoded_bytes])
     except:
         print('Keyboard Interrupt')
         break
-    
-     
+
+
 
 class Heliostat:
 
