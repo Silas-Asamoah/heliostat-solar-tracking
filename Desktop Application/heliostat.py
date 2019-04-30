@@ -1,5 +1,6 @@
 from tkinter import Tk, Menu, Label, Frame, Button
 import math
+import serial
 
 # Constants
 PROGRAM_NAME = 'Heliostat Sun Tracking Control Program'
@@ -9,6 +10,7 @@ MAXIMUM_MACHINE_ALTITUDE = 180
 MAXIMUM_MACHINE_AZIMUTH = 180
 SIMULATE_BUTTON_CLICKED = 'green'
 
+ser_port = serial.Serial('COM9', 9600)
 
 class Heliostat:
 
@@ -32,6 +34,9 @@ class Heliostat:
         ]
 
     
+    def arduino_com(self):
+        print("Arduino Communication Port")
+
 
 
     def create_heliostat_position(self):
@@ -48,6 +53,8 @@ class Heliostat:
         Label(helio_frame, text='Target Azimuth').grid(row=3, column=2)
         Label(helio_frame, text='Select COM Port').grid(row=5, column=1)
         
+    def create_graphical_display(self):
+        print("This is the body of the heliostat")
 
     def create_simulation_controls(self):
         simu_frame = Frame(self.root, height = 25)
@@ -59,7 +66,6 @@ class Heliostat:
         Label(simu_frame, text='Distance to Target').grid(row = 0, column = 1)
         Label(simu_frame, text='Target Alt Orientation').grid(row = 0, column = 1)
         Label(simu_frame, text='Target Azi Orientation').grid(row = 0, column = 1)
-        
 
         
 
