@@ -1,4 +1,4 @@
-from tkinter import Tk, Menu, Label, Frame
+from tkinter import Tk, Menu, Label, Frame, Button
 import math
 
 # Constants
@@ -7,6 +7,7 @@ TARGET_GROUP = 1
 MACHINE_NUMBER = 1
 MAXIMUM_MACHINE_ALTITUDE = 180
 MAXIMUM_MACHINE_AZIMUTH = 180
+SIMULATE_BUTTON_CLICKED = 'green'
 
 
 class Heliostat:
@@ -35,7 +36,7 @@ class Heliostat:
 
     def create_heliostat_position(self):
         helio_frame = Frame(self.root, height=25)
-        helio_frame.grid(row=0, column=12, rowspan=10, padx=5, pady=5)
+        helio_frame.grid(row=0, column=12, rowspan=4, padx=2, pady=2)
         #Distinct Label
         Label(helio_frame, text='Machine Number').grid(row = 0, column = 1)
         Label(helio_frame, text='Target Group').grid(row=0, column=2)
@@ -44,12 +45,23 @@ class Heliostat:
         Label(helio_frame, text='Machine Altitude').grid(row=2, column=1)
         Label(helio_frame, text='Machine Azimuth').grid(row=2, column=2)
         Label(helio_frame, text='Target Altitude').grid(row=3, column=1)
+        Label(helio_frame, text='Target Azimuth').grid(row=3, column=2)
         Label(helio_frame, text='Select COM Port').grid(row=5, column=1)
         
 
+    def create_simulation_controls(self):
+        simu_frame = Frame(self.root, height = 25)
+        simu_frame.grid(row =0, column=13, rowspan=4, padx=2, pady=2)
+        #Simulate Label
+        # 2 Buttons 
+        Label(simu_frame, text='Heliostat Alt Misalignment').grid(row = 0, column=1)
+        Label(simu_frame, text='Heliostat Azi Misalignment').grid(row = 0, column = 1)
+        Label(simu_frame, text='Distance to Target').grid(row = 0, column = 1)
+        Label(simu_frame, text='Target Alt Orientation').grid(row = 0, column = 1)
+        Label(simu_frame, text='Target Azi Orientation').grid(row = 0, column = 1)
+        
 
-        print("Various positions of the Heliostat")
-
+        
 
     def create_top_menu(self):
         self.menu_bar = Menu(self.root)
