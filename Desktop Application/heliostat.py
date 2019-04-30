@@ -11,6 +11,18 @@ MAXIMUM_MACHINE_AZIMUTH = 180
 SIMULATE_BUTTON_CLICKED = 'green'
 
 ser_port = serial.Serial('COM9', 9600)
+ser_port.flushInput()
+
+while True:
+    try:
+        ser_bytes = ser_port.readline()
+        decoded_bytes = float(ser_bytes[0: len(ser_bytes) - 2].decode('utf-8'))
+        print(decoded_bytes)
+    except:
+        print('Keyboard Interrupt')
+        break
+    
+     
 
 class Heliostat:
 
