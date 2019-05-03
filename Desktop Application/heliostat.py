@@ -52,7 +52,7 @@ class Heliostat:
 
     
     def arduino_com(self):
-        print("Arduino Communication Port")
+        pass
 
 
 
