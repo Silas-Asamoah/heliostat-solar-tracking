@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, Spinbox, Entry, Menu, Button, W, E, N, S, PhotoImage
+from tkinter import Tk, Frame, Label, Spinbox, Entry, Menu, Button, W, E, N, S, PhotoImage, Checkbutton
 
 PROGRAM_NAME = 'Explosion Drum Machine'
 MAX_NUMBER_OF_PATTERNS = 10
@@ -8,6 +8,8 @@ INITIAL_BPU = 4
 INITIAL_BEATS_PER_MINUTE = 240 
 MAX_NUMBER_OF_UNITS = 5
 MAX_BPU = 5
+MIN_BEATS_PER_MINUTE = 80
+MAX_BEATS_PER_MINUTE = 360
 
 class DrumMachine:
 
@@ -68,6 +70,35 @@ class DrumMachine:
 
     def find_number_of_columns(self):
         return int(self.number_of_units_widget.get()) * int(self.bpu_widget.get())
+
+    def create_play_bar(self):
+        playbar_frame = Frame(self.root, height=15)
+        start_row = MAX_NUMBER_OF_DRUM_SAMPLES + 10
+        playbar_frame.grid(row=start_row, columnspan=13, sticky= W + E, padx=15, pady=10)
+        # Play Button
+        self.play_icon = PhotoImage(file='images/play.gif')
+        self.play_button = Button(playbar_frame, text='Play', image=self.play_icon, command=self.on_play_button_clicked)
+        self.play_button.grid(row=start_row, column=1, padx=2)
+        
+        # Stop Button
+        self.stop_icon = PhotoImage(file='iamges/stop.gif')
+        self.stop_button = Button(playbar_frame, text='Stop', command=self.on_loop_button_toggled).grid(row=start_row, column=3, padx=2)
+        
+        # Loop Check Box
+        self.loopbutton = Checkbutton(playbar_frame, text='Loop', command=self.on_stop_button_clicked, textvariable=True).grid(row=start_row, column=16, padx=5)
+
+        # Beats Per Minute Spinbox
+        Label(playbar_frame, text='Beats Per Minute').grid(row=start_row, column=25)
+        self.beats_per_minute_widget= Spinbox(playbar_frame, from_=MIN_BEATS_PER_MINUTE, to=MAX_BEATS_PER_MINUTE, width=5, increment=5.0, command=self.on_beats_per_minute_changed)
+        self.beats_per_minute_widget.grid(row=start_row, column = 30)
+        self.beats_per_minute_widget.delete(0, "end")
+        self.beats_per_minute_widget.insert(0, INITIAL_BEATS_PER_MINUTE)
+
+        # Drum Machine Logo
+        photo = PhotoImage(file='images/signature.gif')
+        label = Label(playbar_frame, image = photo)
+        label.image = photo
+        label.grid(row=start_row, column=50, padx=1, sticky='w')
 
 
     def create_left_drum_loader(self):
