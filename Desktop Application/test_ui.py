@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, Spinbox, Entry, Menu
+from tkinter import Tk, Frame, Label, Spinbox, Entry, Menu, Button, W, E, N, S, PhotoImage
 
 PROGRAM_NAME = 'Explosion Drum Machine'
 MAX_NUMBER_OF_PATTERNS = 10
@@ -65,6 +65,22 @@ class DrumMachine:
 
     def process_button_clicked(self, row, col):
         self.set_button_value(row, col, not self.get_button_value(row, col))
+
+    def find_number_of_columns(self):
+        return int(self.number_of_units_widget.get()) * int(self.bpu_widget.get())
+
+
+    def create_left_drum_loader(self):
+        left_frame = Frame(self.root)
+        left_frame.grid(row=10, column=0, columnspan=6, sticky=W + E + N + S)
+        open_file_icon = PhotoImage(file='images/openfile.gif')
+        for i in range(MAX_NUMBER_OF_DRUM_SAMPLES):
+            open_file_button = Button(left_frame, image=open_file_icon, command=self.on_open_file_button_clicked(i))
+            open_file_button.image = open_file_icon
+            open_file_button.grid(row = i, column=0, padx=5, pady=4)
+            self.drum_load_widget[i] = Entry(left_frame)
+            self.drum_load_widget[i].grid(row=i, column=4, padx=7, pady=4)
+        
 
     def create_top_bar(self):
         topbar_frame = Frame(self.root, height = 25)
