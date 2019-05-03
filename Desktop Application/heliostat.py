@@ -12,7 +12,7 @@ MAXIMUM_MACHINE_ALTITUDE = 180
 MAXIMUM_MACHINE_AZIMUTH = 180
 SIMULATE_BUTTON_CLICKED = 'green'
 
-ser_port = serial.Serial('COM9', 9600)
+ser_port = serial.Serial('ardunino communication ports', 9600)
 ser_port.flushInput()
 
 while True:
@@ -52,8 +52,16 @@ class Heliostat:
 
 
     
-    def arduino_com(self):
-        pass
+    def arduino_com(self, ser_port):
+        self.ser_port = ser_port.Serial('filelocation on computer')
+        self.ser_port.flushInput()
+
+        while True:
+            try:
+                pass
+                
+
+        
 
     def on_connect_to_arduino_clicked(self):
         pass
@@ -81,7 +89,7 @@ class Heliostat:
         Label(helio_frame, text='Select COM Port').grid(row=5, column=1)
         
     def create_graphical_display(self):
-        print("This is the body of the heliostat")
+        pass
 
     def create_simulation_controls(self):
         simu_frame = Frame(self.root, height = 25)
