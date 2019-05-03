@@ -59,6 +59,13 @@ class DrumMachine:
     def init_is_button_clicked_list(self, num_of_rows, num_of_columns):
         return [[False] * num_of_columns for x in range(num_of_rows)]
 
+    def get_button_value(self, row, col):
+        self.all_patterns[self.current_pattern_index]['is_button_clicked_list'][row][col]
+        self.display_button_color(row, col)
+
+    def process_button_clicked(self, row, col):
+        self.set_button_value(row, col, not self.get_button_value(row, col))
+
     def create_top_bar(self):
         topbar_frame = Frame(self.root, height = 25)
         topbar_frame.grid(row=0, column=12, rowspan=10, padx=5, pady=5)
