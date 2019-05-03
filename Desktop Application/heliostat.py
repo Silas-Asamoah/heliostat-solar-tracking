@@ -50,8 +50,18 @@ class Heliostat:
             
         ]
 
+
     
     def arduino_com(self):
+        pass
+
+    def on_connect_to_arduino_clicked(self):
+        pass
+
+    def simulation_mode_clicked(self):
+        pass
+
+    def move_rotate_target_clicked(self):
         pass
 
 
