@@ -10,7 +10,10 @@ MAX_NUMBER_OF_UNITS = 5
 MAX_BPU = 5
 MIN_BEATS_PER_MINUTE = 80
 MAX_BEATS_PER_MINUTE = 360
-
+COLOR_1 = 'grey55'
+COLOR_2 = 'khaki'
+BUTTON_CLICKED_COLOR = 'green'
+ 
 class DrumMachine:
 
     def __init__(self, root):
@@ -65,16 +68,38 @@ class DrumMachine:
         self.all_patterns[self.current_pattern_index]['is_button_clicked_list'][row][col]
         self.display_button_color(row, col)
 
+
+    def set_button_value(self, row, col, bool_value):
+        self.all_patterns[self.current_pattern_index][row][col] = bool_value
+
     def process_button_clicked(self, row, col):
         self.set_button_value(row, col, not self.get_button_value(row, col))
 
     def find_number_of_columns(self):
         return int(self.number_of_units_widget.get()) * int(self.bpu_widget.get())
 
+    def on_button_clicked(self, row, col):
+        def event_handler():
+            self.process_button_clicked(row, col)
+        return event_handler
+
+    def display_button_color(self, row, col):
+        bpu = int(self.bpu_widget.get())
+        original_color = COLOR_1 if ((col//bpu) % 2) else COLOR_2
+        button_color = BUTTON_CLICKED_COLOR if self.get_button_value(row, col) else original_color
+        self.buttons[row][col].config(background=button_color)
+
+    def display_all_button_color(self):
+        number_of_columns = self.find_number_of_columns()
+        for r in range(MAX_NUMBER_OF_DRUM_SAMPLES):
+            for c in range(number_of_columns):
+                self.display_button_color(r, c)
+
     def create_play_bar(self):
         playbar_frame = Frame(self.root, height=15)
         start_row = MAX_NUMBER_OF_DRUM_SAMPLES + 10
         playbar_frame.grid(row=start_row, columnspan=13, sticky= W + E, padx=15, pady=10)
+
         # Play Button
         self.play_icon = PhotoImage(file='images/play.gif')
         self.play_button = Button(playbar_frame, text='Play', image=self.play_icon, command=self.on_play_button_clicked)
@@ -99,6 +124,17 @@ class DrumMachine:
         label = Label(playbar_frame, image = photo)
         label.image = photo
         label.grid(row=start_row, column=50, padx=1, sticky='w')
+
+    def create_right_button_matrix(self):
+        right_frame = Frame(self.root)
+        right_frame.grid(row=10, column=6, sticku=W + E + N + S, padx=15, pady=4)
+        self.buttons = [[None for x in range (self.find_number_of_columns())] for x in range(MAX_NUMBER_OF_DRUM_SAMPLES)]
+
+        for row in range(MAX_NUMBER_OF_DRUM_SAMPLES):
+            for col in range(self.find_number_of_columns()):
+                self.buttons[row][col] = Button(right_frame, command=self.on_button_clicked(row, col))
+                self.buttons[row][col].grid(row=row, column=col)
+                self.display_button_color(row, col)
 
 
     def create_left_drum_loader(self):
