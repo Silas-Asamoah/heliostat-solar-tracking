@@ -1,11 +1,3 @@
-
-//**************************************************************
-//  Name    : Simple Arduino Sun Tracking / Heliostat Control Program  
-//  Author  : Gabriel Miller      
-//  Website : http://www.cerebralmeltdown.com                                   
-//  Notes   : Code for controlling various types of solar       
-//          : machines.                                         
-//****************************************************************
   #include "Wire.h"  
   #include <Flash.h>
   #include <EEPROM.h>
